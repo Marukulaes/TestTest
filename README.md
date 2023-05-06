@@ -1,14 +1,3 @@
-_G.Auto_New_World = true
-_G.Auto_Farm_Level = true
-_G.AutoFarmFast = true
-_G.Fastattack = true
-_G.FPS_Boost = true
-_G.Code = true
-
-
-
-
-
 
 if game.PlaceId == 2753915549 then
 	World1 = true
@@ -1484,6 +1473,14 @@ spawn(function()
 		end)
 	end
 end)
+
+_G.Auto_New_World = true
+_G.Auto_Farm_Level = true
+_G.AutoFarmFast = true
+_G.Fastattack = true
+_G.FPS_Boost = true
+_G.Code = true
+
 
 local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/kickTh/New-Ui/main/discord%20lib%20(1).txt")()
 
