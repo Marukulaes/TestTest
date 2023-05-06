@@ -1140,279 +1140,209 @@ end
 
 ------------ // Fast Attack 1 \\ ------------
 
-local L_27_ = game.Players.LocalPlayer
-local L_28_ = debug.getupvalues(require(L_27_.PlayerScripts.CombatFramework))
-local L_29_ = L_28_[2]
+local SeraphFrame = debug.getupvalues(require(game:GetService("Players").LocalPlayer.PlayerScripts:WaitForChild("CombatFramework")))[2]
+local VirtualUser = game:GetService('VirtualUser')
+local RigControllerR = debug.getupvalues(require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework.RigController))[2]
+local Client = game:GetService("Players").LocalPlayer
+local DMG = require(Client.PlayerScripts.CombatFramework.Particle.Damage)
 
-local L_30_ = debug.getupvalues(require(game:GetService("Players").LocalPlayer.PlayerScripts:WaitForChild("CombatFramework")))[2]
-local L_31_ = game:GetService("VirtualUser")
-local L_32_ = debug.getupvalues(require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework.RigController))[2]
-local L_33_ = game:GetService("Players").LocalPlayer
-local L_34_ = require(L_33_.PlayerScripts.CombatFramework.Particle.Damage)
-local YaY = require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework)
-local CameraShakerR = require(game.ReplicatedStorage.Util.CameraShaker)
-
-local plr = game.Players.LocalPlayer
-local CbFw = getupvalues(require(plr.PlayerScripts.CombatFramework))
-local CbFw2 = CbFw[2]
-
-function GetCurrentBlade() 
-	local p13 = CbFw2.activeController
-	local ret = p13.blades[1]
-	if not ret then return end
-	while ret.Parent~=game.Players.LocalPlayer.Character do ret=ret.Parent end
-	return ret
+function SeraphFuckWeapon() 
+	local p13 = SeraphFrame.activeController
+	local wea = p13.blades[1]
+	if not wea then return end
+	while wea.Parent~=game.Players.LocalPlayer.Character do wea=wea.Parent end
+	return wea
 end
 
-function AttackNoCD()
-	local AC = CbFw2.activeController
-	for i = 1, 1 do 
-		local bladehit = require(game.ReplicatedStorage.CombatFramework.RigLib).getBladeHits(
-		plr.Character,
-		{plr.Character.HumanoidRootPart},
-		60
-		)
-		local cac = {}
-		local hash = {}
-		for k, v in pairs(bladehit) do
-			if v.Parent:FindFirstChild("HumanoidRootPart") and not hash[v.Parent] then
-				table.insert(cac, v.Parent.HumanoidRootPart)
-				hash[v.Parent] = true
-			end
-		end
-		bladehit = cac
-		if #bladehit > 0 then
-			pcall(function()
-				AC.animator.anims.basic[1]:Play(0, 0, 0)
-				game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange",tostring(GetCurrentBlade()))
-				game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, i, "")
-			end)
+function getHits(Size)
+	local Hits = {}
+	local Enemies = workspace.Enemies:GetChildren()
+	local Characters = workspace.Characters:GetChildren()
+	for i=1,#Enemies do local v = Enemies[i]
+		local Human = v:FindFirstChildOfClass("Humanoid")
+		if Human and Human.RootPart and Human.Health > 0 and game.Players.LocalPlayer:DistanceFromCharacter(Human.RootPart.Position) < Size+5 then
+			table.insert(Hits,Human.RootPart)
 		end
 	end
-	wait(0.65)
-end
-
-function SeraphFuckWeapon()
-	local L_193_ = L_29_.activeController
-	local L_194_ = L_193_.blades[1]
-	if not L_194_ then
-		return
-	end
-	while L_194_.Parent ~= game.Players.LocalPlayer.Character do
-		L_194_ = L_194_.Parent
-	end
-	return L_194_
-end
-
-function getHits(L_195_arg0)
-	local L_196_ = {}
-	local L_197_ = workspace.Enemies:GetChildren()
-	local L_198_ = workspace.Characters:GetChildren()
-	for L_199_forvar0 = 1, # L_197_ do
-		local L_200_ = L_197_[L_199_forvar0]
-		local L_201_ = L_200_:FindFirstChild("HumanoidRootPart")
-		if L_201_ and game.Players.LocalPlayer:DistanceFromCharacter(L_201_.Position) < L_195_arg0 + 50 then
-			table.insert(L_196_, L_201_)
-		end
-	end
-	for L_202_forvar0 = 1, # L_198_ do
-		local L_203_ = L_198_[L_202_forvar0]
-		if L_203_ ~= game.Players.LocalPlayer.Characters then
-			local L_204_ = L_203_:FindFirstChild("HumanoidRootPart")
-			if L_204_ and game.Players.LocalPlayer:DistanceFromCharacter(L_204_.Position) < L_195_arg0 + 50 then
-				table.insert(L_196_, L_204_)
+	for i=1,#Characters do local v = Characters[i]
+		if v ~= game.Players.LocalPlayer.Character then
+			local Human = v:FindFirstChildOfClass("Humanoid")
+			if Human and Human.RootPart and Human.Health > 0 and game.Players.LocalPlayer:DistanceFromCharacter(Human.RootPart.Position) < Size+5 then
+				table.insert(Hits,Human.RootPart)
 			end
 		end
 	end
-	return L_196_
+	return Hits
 end
 
-spawn(function()
-	while task.wait() do
-		if _G.FastAttack then
-			pcall(function()
-				for i,CombatFrameworkR in pairs(debug.getupvalues(YaY)) do
-					if i == 2 then
-						CameraShakerR:Stop()
-						CombatFrameworkR.activeController.attacking = false
-						CombatFrameworkR.activeController.timeToNextAttack = 0
-						CombatFrameworkR.activeController.increment = 4
-						CombatFrameworkR.activeController.increment = 5
-						CombatFrameworkR.activeController.hitboxMagnitude = 60
-						CombatFrameworkR.activeController.blocking = false
-						CombatFrameworkR.activeController.timeToNextBlock = 0
-						CombatFrameworkR.activeController.focusStart = 0
-						CombatFrameworkR.activeController.humanoid.AutoRotate = true
-					end
-				end
-			end)
-		else
-			for i,CombatFrameworkR in pairs(debug.getupvalues(YaY)) do
-				if i == 2 then
-					pcall(function()
-						CameraShakerR:Stop()
-						CombatFrameworkR.activeController.attacking = false
-						CombatFrameworkR.activeController.hitboxMagnitude = 60
-						CombatFrameworkR.activeController.blocking = false
-						CombatFrameworkR.activeController.focusStart = 0
-						CombatFrameworkR.activeController.humanoid.AutoRotate = true
-					end)
-				end
-			end
-		end
-	end
-end)
-spawn(function()
-	game:GetService('RunService').Stepped:Connect(function()
-		if _G.FastAttack then
-			for i, v in pairs(game.Workspace["_WorldOrigin"]:GetChildren()) do
-				if v.Name == "Sounds" then--or v.Name == "SlashHit"
-					v:Destroy() 
+task.spawn(
+	function()
+		while wait(0.059) do
+			if  _G.FastAttack then
+				if SeraphFrame.activeController then
+					--if v.Humanoid.Health > 0 then
+					SeraphFrame.activeController.timeToNextAttack = 0
+					SeraphFrame.activeController.focusStart = 0
+					SeraphFrame.activeController.hitboxMagnitude = 40
+					SeraphFrame.activeController.humanoid.AutoRotate = true
+					SeraphFrame.activeController.increment = 1 + 1 / 1
 				end
 			end
 		end
 	end)
-end)
-
-spawn(function()
-	while wait(0.1) do
-		if _G.FastAttack then
-			AttackNoCD()
-			wait(0.1)
-		end
-	end
-end)
 
 function Boost()
 	spawn(function()
-		game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange", tostring(SeraphFuckWeapon()))
-		game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, i, "")
+		game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange",tostring(SeraphFuckWeapon()))
 	end)
 end
 
 function Unboost()
 	spawn(function()
-		game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("unequipWeapon", tostring(SeraphFuckWeapon()))
-		game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, i, "")
+		game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("unequipWeapon",tostring(SeraphFuckWeapon()))
 	end)
 end
 
-local L_35_ = Instance.new("Animation")
+local cdnormal = 0
+_G.Dalt = 0
+local Animation = Instance.new("Animation")
+local CooldownFastAttack = 0
 Attack = function()
-	local L_205_ = L_30_.activeController
-	if L_205_ and L_205_.equipped then
-		spawn(function()
-			L_205_:attack()
-			cdnormal = 0
-		end)
-	end
-end
-spawn(function()
-	while wait() do
-		if _G.FastAttack then
-			b = 1
-		end
-		pcall(function()
-			for L_206_forvar0, L_207_forvar1 in pairs(game.Workspace.Enemies:GetChildren()) do
-				if L_207_forvar1.Humanoid.Health > 0 then
-					if (L_207_forvar1.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 350 then
-						Attack()
-						Boost()
-						wait(.1)
+	local ac = SeraphFrame.activeController
+	if ac and ac.equipped then
+		task.spawn(
+			function()
+				if tick() - cdnormal > 0.5 then
+					ac:attack()
+					cdnormal = tick()
+					if _G.Dalt >= 10 then
+						wait(1)
+						_G.Dalt = 0
+					else
+						ac:attack()
+						cdnormal = tick()
+						_G.Dalt = _G.Dalt + 1
 					end
-				end
-			end
-		end)
-	end
-end)
-spawn(function()
-	while wait() do
-		if _G.FastAttack then
-			k = 1
-		end
-		pcall(function()
-			for L_208_forvar0, L_209_forvar1 in pairs(game.Workspace.Enemies:GetChildren()) do
-				if L_209_forvar1.Humanoid.Health > 0 then
-					if (L_209_forvar1.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 350 then
-						Unboost()
-						L_213_arg0:Stop()
-						wait(.1)
-					end
-				end
-			end
-		end)
-	end
-end)
-tjw1 = true
-spawn(function()
-	while wait() do
-		local L_210_ = game.Players.LocalPlayer
-		local L_211_ = require(L_210_.PlayerScripts.CombatFramework.Particle)
-		local L_212_ = require(game:GetService("ReplicatedStorage").CombatFramework.RigLib)
-		if not shared.orl then
-			shared.orl = L_212_.wrapAttackAnimationAsync
-		end
-		if not shared.cpc then
-			shared.cpc = L_211_.play
-		end
-		if tjw1 then
-			pcall(function()
-				L_212_.wrapAttackAnimationAsync = function(L_213_arg0, L_214_arg1, L_215_arg2, L_216_arg3, L_217_arg4)
-					local L_218_ = L_212_.getBladeHits(L_214_arg1, L_215_arg2, L_216_arg3)
-					if L_218_ then
-						L_211_.play = function()
-						end
-						L_213_arg0:Play(0, 0, 0)
-						L_217_arg4(L_218_)
-						L_211_.play = shared.cpc
-						wait(.2)
+				else
+					if _G.Dalt >= 10 then
+						wait(1)
+						_G.Dalt = 0
+					else
+						Animation.AnimationId = ac.anims.basic[2]
+						ac.humanoid:LoadAnimation(Animation):Play(1, 1)
+						game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", getHits(60), 2, "")
+						_G.Dalt = _G.Dalt + 1
 					end
 				end
 			end)
-		end
 	end
-end)
+end
 
-
-
-local L_37_ = game.Players.LocalPlayer
-local L_38_ = require(L_37_.PlayerScripts.CombatFramework.Particle)
-local L_39_ = require(game:GetService("ReplicatedStorage").CombatFramework.RigLib)
+b = tick()
 spawn(function()
-	while wait(.1) do
-		pcall(function()
-			if not shared.orl then
-				shared.orl = L_39_.wrapAttackAnimationAsync
+	while wait() do
+		if  _G.FastAttack then
+			if b - tick() > 0.75 then
+				wait()
+				b = tick()
 			end
-			if not shared.cpc then
-				shared.cpc = L_38_.play
-			end
-			spawn(function()
-				game:GetService("RunService").Stepped:Connect(function()
-					L_39_.wrapAttackAnimationAsync = function(L_219_arg0, L_220_arg1, L_221_arg2, L_222_arg3, L_223_arg4)
-						local L_224_ = L_39_.getBladeHits(L_220_arg1, L_221_arg2, L_222_arg3)
-						if L_224_ then
-							if _G.FastAttack then
-								L_38_.play = function()
-								end
-								L_219_arg0:Play(0, 0, 0)
-								L_223_arg4(L_224_)
-								L_38_.play = shared.cpc
-								wait(0.3)
-								L_219_arg0:Stop()
+			pcall(function()
+				for i, v in pairs(game.Workspace.Enemies:GetChildren()) do
+					if v.Humanoid.Health > 0 then
+						if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 40 then
+							Attack()
+							Boost()
+							if _G.Dalt2 >= 30 then
+								wait(1.2)
+								_G.Dalt2 = 0
 							else
-								L_223_arg4(L_224_)
-								L_38_.play = shared.cpc
-								wait(0.2)
-								L_219_arg0:Stop()
+								Attack()
+								_G.Dalt2 = _G.Dalt2 + 1
 							end
 						end
 					end
-				end)
+				end
 			end)
-		end)
+		end
 	end
 end)
+
+k = tick()
+spawn(function()
+	while wait() do
+		if  _G.FastAttack then
+			if k - tick() > 0.75 then
+				wait()
+				k = tick()
+			end
+			pcall(function()
+				for i, v in pairs(game.Workspace.Enemies:GetChildren()) do
+					if v.Humanoid.Health > 0 then
+						if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 40 then
+							Unboost()
+						end
+					end
+				end
+			end)
+		end
+	end
+end)
+
+tjw1 = true
+task.spawn(
+	function()
+		local a = game.Players.LocalPlayer
+		local b = require(a.PlayerScripts.CombatFramework.Particle)
+		local c = require(game:GetService("ReplicatedStorage").CombatFramework.RigLib)
+		if not shared.orl then
+			shared.orl = c.wrapAttackAnimationAsync
+		end
+		if not shared.cpc then
+			shared.cpc = b.play
+		end
+		if tjw1 then
+			pcall(
+				function()
+					c.wrapAttackAnimationAsync = function(d, e, f, g, h)
+						local i = c.getBladeHits(e, f, g)
+						if i then
+							b.play = function()
+							end
+							d:Play(0, 0, 0)
+							h(i)
+							b.play = shared.cpc
+							wait(.5)
+							d:Stop()
+						end
+					end
+				end
+			)
+		end
+	end
+)
+
+require(game.ReplicatedStorage.Util.CameraShaker):Stop();
+CombatFrameworkR = require(game:GetService("Players").LocalPlayer.PlayerScripts.CombatFramework);
+y = debug.getupvalues(CombatFrameworkR)[2];
+spawn(function()
+	game:GetService("RunService").RenderStepped:Connect(function()
+		if _G.FastAttack then
+			if (typeof(y) == "table") then
+				pcall(function()
+					y.activeController.timeToNextAttack = -(math.huge ^ (math.huge ^ math.huge));
+					y.activeController.hitboxMagnitude = 60;
+					y.activeController.active = false;
+					y.activeController.timeToNextBlock = 0;
+					y.activeController.focusStart = 1655503339.0980349;
+					y.activeController.increment = 0;
+					y.activeController.blocking = false;
+					y.activeController.attacking = false;
+					y.activeController.humanoid.AutoRotate = true;
+				end);
+			end
+		end
+	end);
+end);
 
 function AutoHaki()
 	if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
